@@ -37,18 +37,29 @@ window.addEventListener('DOMContentLoaded', function() {
   const deadline = '2024-06-11' // дата окончания
 
   function getTimerRemaining(endtime) { // получаем разницу между датами
+    let days 
+    let hours
+    let minutes
+    let seconds
     const t = Date.parse(endtime) - Date.parse(new Date()) // разница между датами
-    const days = Math.floor(t / (1000 * 60 * 60 * 24)) // дни
-    const hours = Math.floor((t / 1000 * 60 * 60) % 24) // часы
-    const minutes  = Math.floor((t / 1000 / 60) % 60) // минуты
-    const seconds  = Math.floor((t / 1000) % 60) // секунды
+    if(t <= 0) { // если время закончилось
+      days = 0
+      hours = 0
+      minutes = 0
+      seconds = 0
+    } else {
+      days = Math.floor(t / (1000 * 60 * 60 * 24)) // дни
+      hours = Math.floor((t / 1000 * 60 * 60) % 24) // часы
+      minutes  = Math.floor((t / 1000 / 60) % 60) // минуты
+      seconds  = Math.floor((t / 1000) % 60) // секунды
+    }
 
     return {
-      'total': t,
-      'days': days,
-      'hours': hours,
-      'minutes': minutes,
-      'seconds': seconds
+      'total': t ,
+      'days': days , 
+      'hours': hours ,
+      'minutes': minutes ,
+      'seconds': seconds 
     }
   }
 
