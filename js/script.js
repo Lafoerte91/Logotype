@@ -95,6 +95,39 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   setClock('.timer', deadline) // устанавливаем таймер
+
+  // Modal
+  const modalTrigger = document.querySelectorAll('[data-modal]') // запоминаем все модальные окна
+  const modal = document.querySelector('.modal') // запоминаем модальное окно
+  const modalCloseBtn = this.document.querySelector('[data-close]') // запоминаем кнопку закрытия модального окна
+
+  modalTrigger.forEach(btn => {
+    btn.addEventListener('click', function() {
+      modal.classList.add('show') // показываем модальное окно
+      modal.classList.remove('hide') // убираем скрытие модального окна
+      document.body.style.overflow = 'hidden' // запрещаем прокрутку страницы
+    })
+  })
+
+  function closeModal() {
+    modal.classList.remove('show') // убираем показ модального окна
+    modal.classList.add('hide') // скрываем модальное окно
+    document.body.style.overflow = '' // разрешаем прокрутку страницы
+  }
+
+  modalCloseBtn.addEventListener('click', closeModal) // закрываем модальное окно при нажатии на крестик
+
+  modal.addEventListener('click', function(e) {
+    if(e.target == modal) {
+      closeModal() // закрываем модальное окно при клике вне окна
+    }
+  })
+
+  this.document.addEventListener('keydown', function(e) {
+    if(e.code == 'Escape' && modal.classList.contains('show')) {
+      closeModal() // закрываем модальное окно при нажатии на Escape
+    }
+  })
 })
 
 
