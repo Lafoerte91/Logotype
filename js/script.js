@@ -208,6 +208,52 @@ window.addEventListener('DOMContentLoaded', function() {
     '.menu .container',
     'menu__item'
   ).render()
+
+  // Forms
+  const forms = document.querySelectorAll('form') // получаем все формы
+  const message = {
+    loading: 'Загружаем',
+    success: 'Спасибо! Скоро мы с вами свяжемся',
+    failure: 'Что-то пошло не так...'
+  }
+
+  forms.forEach(item => postData(item)) // отправляем данные
+
+  function postData(form) {
+    form.addEventListener('submit', function(e) { // при отправке формы 
+      e.preventDefault() // отменяем стандартное поведение формы
+
+      const statusMessage = document.createElement('div') // создаем элемент
+      statusMessage.classList.add('status') // добавляем ему класс
+      statusMessage.textContent = message.loading // задаем содержимое
+      form.append(statusMessage) // добавляем элемент в конец формы
+
+      const request = new XMLHttpRequest() // создаем объект XMLHttpRequest
+      request.open('POST', 'server.php') // открываем соединение с PHP-файлом
+      request.setRequestHeader('Content-type', 'application/json; charset=utf-8') // указываем тип содержимого
+      
+      const formData = new FormData(form) // получаем данные формы
+      const object = {} // создаем пустой объект
+      formData.forEach(function(value, key) { // проходимяем по полученным данным
+        object[key] = value // заполняем объект данными из формы
+      })
+      const json = JSON.stringify(object) // переводим объект в JSON
+      request.send(json) // отправляем данные на PHP-файл
+
+      request.addEventListener('load', function() { // при успешном получении данных
+        if(request.status == 200) { // если данные получены
+          console.log(request.response) // выводим их в консоль
+          statusMessage.textContent = message.success // выводим сообщение об успехе
+          form.reset() // очищаем форму
+          setTimeout(() => {
+            statusMessage.remove()
+          }, 2000);
+        } else {
+          statusMessage.textContent = message.failure // выводим сообщение об ошибке
+        }
+      })
+    })
+  }
 })
 
 
