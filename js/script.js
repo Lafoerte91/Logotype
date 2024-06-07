@@ -227,28 +227,30 @@ window.addEventListener('DOMContentLoaded', function() {
       statusMessage.textContent = message.loading // задаем содержимое
       statusMessage.style.cssText = 'display: block; margin: 0 auto' // задаем стили
       form.insertAdjacentElement('afterend', statusMessage) // добавляем элемент после формы
-
-      const request = new XMLHttpRequest() // создаем объект XMLHttpRequest
-      request.open('POST', 'server.php') // открываем соединение с PHP-файлом
-      request.setRequestHeader('Content-type', 'application/json; charset=utf-8') // указываем тип содержимого
-      
+            
       const formData = new FormData(form) // получаем данные формы
       const object = {} // создаем пустой объект
       formData.forEach(function(value, key) { // проходимяем по полученным данным
         object[key] = value // заполняем объект данными из формы
       })
-      const json = JSON.stringify(object) // переводим объект в JSON
-      request.send(json) // отправляем данные на PHP-файл
 
-      request.addEventListener('load', function() { // при успешном получении данных
-        if(request.status == 200) { // если данные получены
-          showThanksModal(message.success) // выводим сообщение об успехе
-          form.reset() // очищаем форму
-          statusMessage.remove() // удаляем сообщение об успехе
-        } else {
-          showThanksModal(message.failure) // выводим сообщение об ошибке
-        }
+      fetch('server1.php', { // отправляем данные на PHP-файл
+        method: 'POST', // метод отправки
+        headers: {
+          'Content-type': 'application/json' // тип данных
+        },
+        body: JSON.stringify(object) // данные
       })
+      .then((data) => data.text()) // получаем ответ
+      .then((data) => {
+          console.log(data)
+          showThanksModal(message.success) // выводим сообщение об успехе
+          statusMessage.remove() // удаляем сообщение об успехе
+        }).catch(() => {
+          showThanksModal(message.failure) // выводим сообщение об ошибке
+        }).finally(() => {
+          form.reset() // очищаем форму
+        })
     })
     function showThanksModal(message) { 
       prevModalDialog.classList.add('hide') // скрываем модальное окно
