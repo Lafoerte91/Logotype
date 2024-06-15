@@ -139,73 +139,37 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 
   window.addEventListener('scroll', showModalByScroll) // открываем модальное окно при прокрутке до конца страницы
-
-  // Classes
-  class MenuCard {
-    constructor(src, alt, title, descr, price, parentSelector, ...classes) {
-      this.src = src
-      this.alt = alt
-      this.title = title
-      this.descr = descr
-      this.price = +price
-      this.classes = classes
-      this.parent = document.querySelector(parentSelector)
-      this.transfer = 91
-      this.changeToRUB()
+  
+  // async/await
+  const getResource = async (url) => { // функция для получения данных
+    const res = await fetch(url) // получаем данные
+    if(!res.ok) {
+      throw new Error(`Could not fetch ${url}, status: ${res.status}`) // если произошла ошибка
     }
-    changeToRUB() {
-      this.price *= this.transfer
-    }
-    render() {
-      const element = document.createElement('div')
-      if(this.classes.length === 0) {
-        this.element = 'menu__item'
-        element.classList.add(this.element)
-      } else {
-        this.classes.forEach(className => element.classList.add(className))
-      }
-      element.innerHTML = `
-      <img src="${this.src}" alt="${this.alt}">
-      <h3 class="menu__item-subtitle">${this.title}</h3>
-      <div class="menu__item-descr">${this.descr}</div>
-      <div class="menu__item-divider"></div>
-      <div class="menu__item-price">
-          <div class="menu__item-cost">Цена:</div>
-          <div class="menu__item-total"><span>${this.price}</span> руб/день</div>
-      </div>
-      `
-      this.parent.append(element)
-    }
+    return await res.json() // преобразуем данные
   }
 
-  new MenuCard(
-    'img/tabs/vegy.jpg',
-    'vegy',
-    'Меню "Фитнес"',
-    'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-    3,
-    '.menu .container'
-  ).render()
+  getResource('http://localhost:3000/menu')
+    .then(data => createCard(data)) // получаем данные и создаем карточки
 
-  new MenuCard(
-    'img/tabs/elite.jpg',
-    'elite',
-    'Меню “Премиум”',
-    'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-    6,
-    '.menu .container',
-    'menu__item'
-  ).render()
-
-  new MenuCard(
-    'img/tabs/post.jpg',
-    'post',
-    'Меню "Постное"',
-    'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-    4,
-    '.menu .container',
-    'menu__item'
-  ).render()
+  function createCard(data) {
+    data.forEach(({img, altimg, title, descr, price}) => { // перебираем полученные данные
+      price *= 89 // пересчитываем цену с учетом курса
+      const element = document.createElement('div') // создаем элемент
+      element.classList.add('menu__item') // добавляем класс
+      element.innerHTML = `
+      <img src="${img}" alt="${altimg}">
+      <h3 class="menu__item-subtitle">${title}</h3>
+      <div class="menu__item-descr">${descr}</div>
+      <div class="menu__item-divider"></div>
+      <div class="menu__item-price">
+        <div class="menu__item-cost">Цена:</div>
+        <div class="menu__item-total"><span>${price}</span> руб/день</div>
+      </div>
+      `
+      document.querySelector('.menu .container').append(element) // добавляем элемент в контейнер
+    })
+  }
 
   // Forms
   const forms = document.querySelectorAll('form') // получаем все формы
@@ -216,9 +180,20 @@ window.addEventListener('DOMContentLoaded', function() {
     failure: 'Что-то пошло не так...'
   }
 
-  forms.forEach(item => postData(item)) // отправляем данные
+  forms.forEach(item => bindPostData(item)) // отправляем данные
 
-  function postData(form) {
+  const postData = async (url, data) => {
+    const res = await fetch(url, {
+      method: 'POST', // метод отправки
+      headers: {
+        'Content-type': 'application/json' // тип данных
+      },
+      body: data // данные
+    })
+    return await res.json() // получаем данные
+  }
+
+  function bindPostData(form) {
     form.addEventListener('submit', function(e) { // при отправке формы 
       e.preventDefault() // отменяем стандартное поведение формы
 
@@ -229,28 +204,19 @@ window.addEventListener('DOMContentLoaded', function() {
       form.insertAdjacentElement('afterend', statusMessage) // добавляем элемент после формы
             
       const formData = new FormData(form) // получаем данные формы
-      const object = {} // создаем пустой объект
-      formData.forEach(function(value, key) { // проходимяем по полученным данным
-        object[key] = value // заполняем объект данными из формы
-      })
+      
+      const json = JSON.stringify(Object.fromEntries(formData.entries())) // получаем данные формы
 
-      fetch('server1.php', { // отправляем данные на PHP-файл
-        method: 'POST', // метод отправки
-        headers: {
-          'Content-type': 'application/json' // тип данных
-        },
-        body: JSON.stringify(object) // данные
-      })
-      .then((data) => data.text()) // получаем ответ
-      .then((data) => {
-          console.log(data)
-          showThanksModal(message.success) // выводим сообщение об успехе
-          statusMessage.remove() // удаляем сообщение об успехе
-        }).catch(() => {
-          showThanksModal(message.failure) // выводим сообщение об ошибке
-        }).finally(() => {
-          form.reset() // очищаем форму
-        })
+      postData('http://localhost:3000/requests', json) // отправляем данные формы
+        .then((data) => {
+            console.log(data)
+            showThanksModal(message.success) // выводим сообщение об успехе
+            statusMessage.remove() // удаляем сообщение об успехе
+          }).catch(() => {
+            showThanksModal(message.failure) // выводим сообщение об ошибке
+          }).finally(() => {
+            form.reset() // очищаем форму
+          })
     })
     function showThanksModal(message) { 
       prevModalDialog.classList.add('hide') // скрываем модальное окно
