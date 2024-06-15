@@ -273,4 +273,9 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 })
 
+// json-server 
+fetch('http://localhost:3000/menu') // получаем данные
+  .then(data => data.json()) // преобразуем данные
+  .then(res => console.log(res)) // выводим данные
+
 
