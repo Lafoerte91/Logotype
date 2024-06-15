@@ -149,8 +149,8 @@ window.addEventListener('DOMContentLoaded', function() {
     return await res.json() // преобразуем данные
   }
 
-  getResource('http://localhost:3000/menu')
-    .then(data => createCard(data)) // получаем данные и создаем карточки
+  axios.get('http://localhost:3000/menu') // получаем данные
+    .then(data => createCard(data.data)) // выводим данные
 
   function createCard(data) {
     data.forEach(({img, altimg, title, descr, price}) => { // перебираем полученные данные
@@ -238,10 +238,5 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 })
-
-// json-server 
-fetch('http://localhost:3000/menu') // получаем данные
-  .then(data => data.json()) // преобразуем данные
-  .then(res => console.log(res)) // выводим данные
 
 
