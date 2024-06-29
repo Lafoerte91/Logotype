@@ -244,32 +244,68 @@ window.addEventListener('DOMContentLoaded', function() {
   const prev = document.querySelector('.offer__slider-prev') // получаем кнопку "назад"
   const next = document.querySelector('.offer__slider-next') // получаем кнопку "вперед"
   const currentSlide = document.querySelector('#current') // получаем текущий слайд
+  const total = document.querySelector('#total') // получаем общий слайд
+  const slidesWrapper = document.querySelector('.offer__slider-wrapper') // получаем внешнюю обертку 
+  slidesWrapper.style.overflow = 'hidden'
+  const slidesField = document.querySelector('.offer__slider-inner') // получаем внутреннюю обертку 
+  const width = window.getComputedStyle(slidesWrapper).width // получаем ширину внешней обертки
+  slidesField.style.width = 100 * slides.length + '%' // задаем ширину внутренней обертки
+  slidesField.style.display = 'flex'
+  slidesField.style.transition = '0.5s all' // задаем время анимации
   let slideIndex = 1 // текущий слайд
+  let offset = 0 // смещение слайда
 
-  showSlides(slideIndex) // показываем текущий слайд
+  if(slides.length < 10) {
+    total.textContent = `0${slides.length}` // отображаем число слайдов
+    currentSlide.textContent = `0${slideIndex}` // отображаем текущий слайд
+  } else {
+    currentSlide.textContent = slideIndex
+    total.textContent = slides.length
+  }
 
-  function showSlides(n) {
-    if(n > slides.length) { // если текущий слайд больше количества слайдов
-      slideIndex = 1 // устанавливаем текущий слайд в первый
+  slides.forEach(slyde => slyde.style.width = width) // задаем ширину слайдов
+
+  next.addEventListener('click', () => {
+    if(offset == +width.slice(0, width.length-2) * (slides.length - 1)) { // если смещение равно ширине последнего слайда
+      offset = 0 // смещение равно нулю
+    } else {
+      offset += +width.slice(0, width.length-2) // смещение увеличивается на ширину слайда
     }
-    if(n < 1) { // если текущий слайд меньше первого слайда
-      slideIndex =  slides.length // устанавливаем текущий слайд в последний
+    slidesField.style.transform = `translateX(-${offset}px)` // смещаем слайды
+
+    if(slideIndex == slides.length) { // если текущий слайд равен общему количеству слайдов
+      slideIndex = 1
+    } else {
+      slideIndex++
     }
-    slides.forEach(item => item.classList.add('hide')) // скрываем все слайды
-    slides[slideIndex-1].classList.remove('hide') // показываем текущий слайд
+
     if(slides.length < 10) {
-      currentSlide.textContent = `0${slideIndex}` // отображаем номер текущего слайда
+      currentSlide.textContent = `0${slideIndex}` // отображаем текущий слайд
     } else {
       currentSlide.textContent = slideIndex
     }
-  }
+  })
 
-  function plusSlides(n) {
-    showSlides(slideIndex += n) // при нажатии "вперед" или "назад" показываем следующий или предыдущий слайд
-  }
+  prev.addEventListener('click', () => {
+    if(offset == 0) { // если смещение равно нулю
+      offset = +width.slice(0, width.length-2) * (slides.length - 1) // смещение равно ширине последнего слайда
+    } else {
+      offset -= +width.slice(0, width.length-2) // смещение увеличивается на ширину слайда
+    }
+    slidesField.style.transform = `translateX(-${offset}px)` // смещаем слайды
 
-  prev.addEventListener('click', () => plusSlides(-1)) // при нажатии "назад" показываем предыдущий слайд 
-  next.addEventListener('click', () => plusSlides(1)) // при нажатии "назад" показываем предыдущий слайд 
+    if(slideIndex == 1) { // если текущий слайд равен общему количеству слайдов
+      slideIndex = slides.length
+    } else {
+      slideIndex--
+    }
+  
+    if(slides.length < 10) {
+      currentSlide.textContent = `0${slideIndex}` // отображаем текущий слайд
+    } else {
+      currentSlide.textContent = slideIndex
+    }
+  })
 })
 
 
