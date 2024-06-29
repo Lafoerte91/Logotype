@@ -237,6 +237,39 @@ window.addEventListener('DOMContentLoaded', function() {
       }, 4000);
     }
   }
+
+  // Slider
+  const slides = document.querySelectorAll('.offer__slide') // получаем все слайды
+  console.log(slides)
+  const prev = document.querySelector('.offer__slider-prev') // получаем кнопку "назад"
+  const next = document.querySelector('.offer__slider-next') // получаем кнопку "вперед"
+  const currentSlide = document.querySelector('#current') // получаем текущий слайд
+  let slideIndex = 1 // текущий слайд
+
+  showSlides(slideIndex) // показываем текущий слайд
+
+  function showSlides(n) {
+    if(n > slides.length) { // если текущий слайд больше количества слайдов
+      slideIndex = 1 // устанавливаем текущий слайд в первый
+    }
+    if(n < 1) { // если текущий слайд меньше первого слайда
+      slideIndex =  slides.length // устанавливаем текущий слайд в последний
+    }
+    slides.forEach(item => item.classList.add('hide')) // скрываем все слайды
+    slides[slideIndex-1].classList.remove('hide') // показываем текущий слайд
+    if(slides.length < 10) {
+      currentSlide.textContent = `0${slideIndex}` // отображаем номер текущего слайда
+    } else {
+      currentSlide.textContent = slideIndex
+    }
+  }
+
+  function plusSlides(n) {
+    showSlides(slideIndex += n) // при нажатии "вперед" или "назад" показываем следующий или предыдущий слайд
+  }
+
+  prev.addEventListener('click', () => plusSlides(-1)) // при нажатии "назад" показываем предыдущий слайд 
+  next.addEventListener('click', () => plusSlides(1)) // при нажатии "назад" показываем предыдущий слайд 
 })
 
 
