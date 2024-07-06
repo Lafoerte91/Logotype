@@ -353,6 +353,72 @@ window.addEventListener('DOMContentLoaded', function() {
       dots[slideIndex - 1].style.opacity = 1
     })
   })
+
+  // Calculate
+  let result = document.querySelector('.calculating__result span')  // получаем результирующее значение
+  let sex = 'female'
+  let height 
+  let weight 
+  let age 
+  let ratio = 1.375
+
+  calcTotal()
+
+  function calcTotal() {
+    if(!sex || !weight || !age || !ratio || !height) {
+      result.textContent = '____'
+      return
+    }
+    if(sex == 'female') {
+      result.textContent = ((447.6 + (9.2 * weight) + (3.1 * height) - (4.3 * age)) * ratio).toFixed(0)
+    } else {
+      result.textContent = ((88.36 + (13.4 * weight) + (4.8 * height) - (5.7 * age)) * ratio).toFixed(0)
+    }
+  }
+
+  function getStaticInformation(parentSelector, activeClass) {
+    const  elements = document.querySelectorAll(`${parentSelector} div`) // получаем все дочерние div
+    elements.forEach(elem => {
+      elem.addEventListener('click', (e) => {
+        if(e.target.getAttribute('data-ratio')) {
+          ratio = +e.target.getAttribute('data-ratio')
+          calcTotal()
+        } else {
+          sex = e.target.getAttribute('id')
+          calcTotal()
+        }
+        elements.forEach(elem => {
+          elem.classList.remove(activeClass)
+        })
+          e.target.classList.add(activeClass)
+      })
+    })
+  }
+
+  getStaticInformation('#gender', 'calculating__choose-item_active')
+  getStaticInformation('.calculating__choose_big', 'calculating__choose-item_active')
+
+  function getDynamicInformation(selector) {
+    const input = document.querySelector(selector)
+    input.addEventListener('input', () => {
+      switch(input.getAttribute('id')) {
+        case 'height':
+          height = +input.value
+          break
+        case 'weight':
+          weight = +input.value
+          break
+        case 'age':
+          age = +input.value
+          break
+      }
+      calcTotal() 
+    })
+  }
+
+  getDynamicInformation('#height')
+  getDynamicInformation('#weight')
+  getDynamicInformation('#age')
 })
 
 
