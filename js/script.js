@@ -283,11 +283,15 @@ window.addEventListener('DOMContentLoaded', function() {
     dots.push(dot)
   }
 
+  function deleteNotDiggits(str) {
+    return +str.replace(/\D/g, '') // удаляем не цифры
+  }
+
   next.addEventListener('click', () => {
-    if(offset == +width.slice(0, width.length-2) * (slides.length - 1)) { // если смещение равно ширине последнего слайда
+    if(offset == deleteNotDiggits(width) * (slides.length - 1)) { // если смещение равно ширине последнего слайда
       offset = 0 // смещение равно нулю
     } else {
-      offset += +width.slice(0, width.length-2) // смещение увеличивается на ширину слайда
+      offset += deleteNotDiggits(width) // смещение увеличивается на ширину слайда
     }
     slidesField.style.transform = `translateX(-${offset}px)` // смещаем слайды
 
@@ -309,9 +313,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
   prev.addEventListener('click', () => {
     if(offset == 0) { // если смещение равно нулю
-      offset = +width.slice(0, width.length-2) * (slides.length - 1) // смещение равно ширине последнего слайда
+      offset = deleteNotDiggits(width)* (slides.length - 1) // смещение равно ширине последнего слайда
     } else {
-      offset -= +width.slice(0, width.length-2) // смещение увеличивается на ширину слайда
+      offset -= deleteNotDiggits(width)// смещение увеличивается на ширину слайда
     }
     slidesField.style.transform = `translateX(-${offset}px)` // смещаем слайды
 
@@ -336,7 +340,7 @@ window.addEventListener('DOMContentLoaded', function() {
       const slideTo = e.target.getAttribute('data-slide-to')
       slideIndex = slideTo
 
-      offset =  +width.slice(0, width.length-2) * (slideTo - 1)
+      offset =  deleteNotDiggits(width) * (slideTo - 1)
       slidesField.style.transform = `translateX(-${offset}px)`
 
       if(slides.length < 10) {
