@@ -356,13 +356,41 @@ window.addEventListener('DOMContentLoaded', function() {
 
   // Calculate
   let result = document.querySelector('.calculating__result span')  // получаем результирующее значение
-  let sex = 'female'
+  let sex
   let height 
   let weight 
   let age 
-  let ratio = 1.375
+  let ratio
 
-  calcTotal()
+  if(localStorage.getItem('sex')) {
+    sex = localStorage.getItem('sex')
+    initLocalSettings('#gender div', 'calculating__choose-item_active')
+  } else {
+    sex = 'female'
+    localStorage.setItem('sex', 'female')
+  }
+
+  if(localStorage.getItem('ratio')) {
+    ratio = localStorage.getItem('ratio')
+    initLocalSettings('.calculating__choose_big div', 'calculating__choose-item_active')
+  } else {
+    ratio = 1.375
+    localStorage.setItem('ratio', 1.375)
+  }
+
+  function initLocalSettings(selector, activeClass) {
+    const elements = document.querySelectorAll(selector)
+
+    elements.forEach(elem => {
+      elem.classList.remove(activeClass)
+      if(elem.getAttribute('id') === localStorage.getItem('sex')) {
+        elem.classList.add(activeClass)
+      }
+      if(elem.getAttribute('data-ratio') === localStorage.getItem('ratio')) {
+        elem.classList.add(activeClass)
+      }
+    })
+  }
 
   function calcTotal() {
     if(!sex || !weight || !age || !ratio || !height) {
@@ -376,15 +404,19 @@ window.addEventListener('DOMContentLoaded', function() {
     }
   }
 
+  calcTotal()
+
   function getStaticInformation(parentSelector, activeClass) {
     const  elements = document.querySelectorAll(`${parentSelector} div`) // получаем все дочерние div
     elements.forEach(elem => {
       elem.addEventListener('click', (e) => {
         if(e.target.getAttribute('data-ratio')) {
           ratio = +e.target.getAttribute('data-ratio')
+          localStorage.setItem('ratio', +e.target.getAttribute('data-ratio')) 
           calcTotal()
         } else {
           sex = e.target.getAttribute('id')
+          localStorage.setItem('sex', e.target.getAttribute('id'))
           calcTotal()
         }
         elements.forEach(elem => {
@@ -401,6 +433,11 @@ window.addEventListener('DOMContentLoaded', function() {
   function getDynamicInformation(selector) {
     const input = document.querySelector(selector)
     input.addEventListener('input', () => {
+      if(input.value.match(/\D/g)) { // проверка на ввод только цифр
+        input.style.border = '1px solid red'
+      } else {
+        input.style.border = 'none'
+      }
       switch(input.getAttribute('id')) {
         case 'height':
           height = +input.value
